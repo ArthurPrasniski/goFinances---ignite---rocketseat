@@ -20,6 +20,7 @@ export const Container = styled(TouchableOpacity)<ContainerProps>`
   border: 1.5px solid ${({ theme }) => theme.colors.text};
   border-radius: 5px;
   padding: 16px;
+  margin-top: 8px;
 
   ${({isActive, type}) => isActive && type === 'up' && css`
     background-color: ${({ theme }) => theme.colors.success_light};
