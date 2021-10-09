@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Alert, Modal, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
   Container,
@@ -38,6 +39,7 @@ export function Register() {
   });
   const [transactionsType, setTransactionType] = useState("");
   const [catergoryModalOpen, setCategoryModalOpen] = useState(false);
+  const dataKey = "@gofinances:transactions";
   const {
     control,
     handleSubmit,
@@ -56,19 +58,36 @@ export function Register() {
     setCategoryModalOpen(false);
   }
 
-  function handleRegister(form: FormData) {
+  async function handleRegister(form: FormData) {
     if (!transactionsType) return Alert.alert("Selecione o tipo de transação");
     if (category.key === "category")
       return Alert.alert("Selecione a categoria");
 
-    const data = {
+    const newTransaction = {
       name: form.name,
       amount: form.amount,
       transactionsType,
       category: category.key,
     };
-    console.log(data);
+
+    try {
+      const data = await AsyncStorage.getItem(dataKey);
+      const currentData = data ? JSON.parse(data) : [];
+      const dataFormatted = [...currentData, newTransaction];
+      await AsyncStorage.setItem(dataKey, JSON.stringify(dataFormatted));
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Não foi possivel salvar");
+    }
   }
+
+  useEffect(() => {
+    async function loadData() {
+      const data = await AsyncStorage.getItem(dataKey);
+      console.log(JSON.parse(data!));
+    }
+    loadData();
+  }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -79,8 +98,8 @@ export function Register() {
         <Form>
           <Fields>
             <InputForm
-              name="name"
               control={control}
+              name="name"
               placeholder="Nome"
               autoCapitalize="sentences"
               autoCorrect={false}
