@@ -19,12 +19,12 @@ import { InputForm } from "../../components/Forms/InputForm";
 import { CategorySelectButton } from "../../components/Forms/CategorySelect";
 import { TransactionTypeButton } from "../../components/Forms/TransactionTypeButton";
 
-interface FormData {
+export interface FormData {
   name: string;
   amount: string;
 }
 
-const schema = Yup.object().shape({
+const schema = Yup.object({
   name: Yup.string().required("Nome é obrigatorio"),
   amount: Yup.number()
     .typeError("Informe um valor númerico")
@@ -44,7 +44,7 @@ export function Register() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: yupResolver(schema) });
+  } = useForm<FormData>({ resolver: yupResolver(schema) });
 
   function handleTransactionTypeSelect(type: "up" | "down") {
     setTransactionType(type);
@@ -106,7 +106,7 @@ export function Register() {
               error={errors.name && errors.name.message}
             />
             <InputForm
-              name="valor"
+              name="amount"
               control={control}
               placeholder="Valor"
               keyboardType="numeric"
